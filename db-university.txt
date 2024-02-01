@@ -1,7 +1,7 @@
 DB
 Database/2024-01-31 - DB University
 
-Todo
+TODO
 Dopo aver testato le vostre query con phpMyAdmin, riportatele in un file txt o md e caricatelo nella vostra repo.
 
 Query
@@ -37,9 +37,111 @@ Selezionare tutti i corsi di laurea magistrale (38)
 
 Da quanti dipartimenti è composta l'università? (12)
 
-		SELECT * FROM departments;
+		SELECT COUNT (*) FROM departments;
 
 
 Quanti sono gli insegnanti che non hanno un numero di telefono? (50)
 
-		SELECT * FROM teachers WHERE phone is NULL;
+		SELECT COUNT (*) FROM teachers WHERE phone is NULL;
+
+
+
+
+
+2024-02-01 - DB University - 3
+
+
+TODO
+Dopo aver testato le vostre query con phpMyAdmin, riportatele in un file txt o md e caricatelo nella vostra repo.
+
+Query
+
+
+GROUP BY
+Contare quanti iscritti ci sono stati ogni anno
+
+	SELECT YEAR(enrolment_date), COUNT(*) 'iscritti' 
+	FROM students 
+	GROUP BY YEAR(enrolment_date);
+
+
+Contare gli insegnanti che hanno l'ufficio nello stesso edificio
+
+	SELECT office_address, COUNT(*) 'professori nello stesso indirizzo' 
+	FROM teachers 
+	WHERE office_address = office_address 
+	GROUP BY office_address
+
+
+Calcolare la media dei voti di ogni appello d'esame (dell'esame vogliamo solo l'id)
+
+	SELECT exam_id, FLOOR(AVG(vote)) FROM exam_student GROUP BY exam_id;
+
+
+Contare quanti corsi di laurea ci sono per ogni dipartimento
+
+	SELECT departments.name, COUNT(*) 'conteggio corsi'
+	FROM departments
+	JOIN degrees ON departments.id = degrees.department_id
+	GROUP by departments.name;
+
+
+
+JOIN
+1. Selezionare tutti gli studenti iscritti al Corso di Laurea in Economia
+
+	SELECT * 
+	FROM students 
+	JOIN degrees on students.degree_id = degrees.id 
+	WHERE degrees.name 
+	LIKE 'Corso di Laurea in Economia';
+
+
+2. Selezionare tutti i Corsi di Laurea Magistrale del Dipartimento di Neuroscienze
+
+	SELECT *
+	FROM degrees
+	JOIN departments ON degrees.department_id = departments.id
+	WHERE departments.name LIKE 'Dipartimento di Neuroscienze' AND degrees.level LIKE 'magistrale';
+
+
+3. Selezionare tutti i corsi in cui insegna Fulvio Amato (id=44)
+
+	SELECT * FROM courses
+	JOIN course_teacher ON courses.id = course_teacher.course_id
+	JOIN teachers ON course_teacher.teacher_id = teachers.id
+	WHERE teachers.id LIKE '44';
+
+
+4. Selezionare tutti gli studenti con i dati relativi al corso di laurea a cui sono iscritti e il relativo dipartimento, in ordine alfabetico per cognome e nome
+
+	SELECT *
+	FROM students
+	JOIN degrees ON students.degree_id = degrees.id
+	JOIN departments ON degrees.department_id = departments.id
+	ORDER BY students.surname, students.name;
+
+
+Selezionare tutti i corsi di laurea con i relativi corsi e insegnanti
+
+	SELECT degrees.name, courses.name, course_teacher.teacher_id
+	FROM degrees
+	JOIN courses ON degrees.id = courses.degree_id
+	JOIN course_teacher ON courses.id = course_teacher.course_id;
+
+
+Selezionare tutti i docenti che insegnano nel Dipartimento di Matematica (54)
+
+SELECT DISTINCT teachers.* 
+	FROM teachers
+	JOIN course_teacher ON teachers.id = course_teacher.teacher_id
+	JOIN courses ON course_teacher.course_id = courses.id
+	JOIN degrees ON courses.degree_id = degrees.id
+	JOIN departments ON degrees.department_id = departments.id
+	WHERE departments.name LIKE 'Dipartimento di Matematica';
+
+
+Bonus
+Selezionare per ogni studente il numero di tentativi sostenuti per ogni esame, stampando anche il voto massimo. Successivamente, filtrare i tentativi con voto minimo 18.
+
+
